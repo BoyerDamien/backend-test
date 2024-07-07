@@ -31,7 +31,7 @@ func (c UpdateOne) Handle(ctx context.Context, params breeds.FactoryOpts) (*bree
 	}
 	_, err = breedRepo.GetOneByName(ctx, b.Name())
 	if errors.Is(err, domainerror.ErrResourceNotFound) {
-		return breedRepo.UpdateOne(ctx, b)
+		return nil, err
 	}
-	return nil, err
+	return breedRepo.UpdateOne(ctx, b)
 }

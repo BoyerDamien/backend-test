@@ -51,9 +51,7 @@ func (b BreedStorage) GetOneByName(ctx context.Context, name values.BreedName) (
 			"species",
 		).
 		Where(goqu.I("name").Eq(name.String()))
-	fmt.Println(query.ToSQL())
-	found, err := query.
-		ScanStructContext(ctx, &res)
+	found, err := query.ScanStructContext(ctx, &res)
 	if err != nil {
 		return nil, domainerror.WrapError(domainerror.ErrInternalError, err)
 	}
@@ -65,8 +63,6 @@ func (b BreedStorage) GetOneByName(ctx context.Context, name values.BreedName) (
 }
 
 func (b BreedStorage) CreateOne(ctx context.Context, input *breeds.Breed) (*breeds.Breed, error) {
-	var res BreedModel
-
 	insert := b.db.Insert(goqu.T("breeds")).Rows(
 		goqu.Record{
 			"name":                        input.Name().String(),
@@ -75,23 +71,15 @@ func (b BreedStorage) CreateOne(ctx context.Context, input *breeds.Breed) (*bree
 			"average_male_adult_weight":   input.AverageMaleWeight(),
 			"average_female_adult_weight": input.AverageFemaleWeight(),
 		},
-	).Returning(
-		goqu.C("name"),
-		goqu.C("pet_size"),
-		goqu.C("average_male_adult_weight"),
-		goqu.C("average_female_adult_weight"),
-		goqu.C("species"),
 	).Executor()
 
-	if _, err := insert.ScanStructContext(ctx, &res); err != nil {
+	if _, err := insert.ExecContext(ctx); err != nil {
 		return nil, domainerror.WrapError(domainerror.ErrInternalError, err)
 	}
-	return res.ToDomain()
+	return b.GetOneByName(ctx, input.Name())
 }
 
 func (b BreedStorage) UpdateOne(ctx context.Context, input *breeds.Breed) (*breeds.Breed, error) {
-	var res BreedModel
-
 	update := b.db.Update(goqu.T("breeds")).
 		Set(goqu.Record{
 			"name":                        input.Name().String(),
@@ -102,22 +90,19 @@ func (b BreedStorage) UpdateOne(ctx context.Context, input *breeds.Breed) (*bree
 		}).
 		Where(
 			goqu.C("name").Eq(input.Name()),
-		).
-		Returning(
-			goqu.C("name"),
-			goqu.C("pet_size"),
-			goqu.C("average_male_adult_weight"),
-			goqu.C("average_female_adult_weight"),
-			goqu.C("species"),
 		).Executor()
 
-	if updated, err := update.ScanStructContext(ctx, &res); err != nil {
+	res, err := update.ExecContext(ctx)
+	if err != nil {
 		return nil, domainerror.WrapError(domainerror.ErrInternalError, err)
-	} else if !updated {
+	}
+	if i, err := res.RowsAffected(); err != nil {
+		return nil, domainerror.WrapError(domainerror.ErrInternalError, err)
+	} else if i == 0 {
 		return nil, domainerror.ErrNothingTodo
 	}
 
-	return res.ToDomain()
+	return b.GetOneByName(ctx, input.Name())
 }
 
 func (b BreedStorage) DeleteOneByName(ctx context.Context, name values.BreedName) error {

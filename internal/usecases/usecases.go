@@ -1,7 +1,6 @@
 package usecases
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/japhy-tech/backend-test/internal/gateways"
@@ -55,14 +54,13 @@ func (u UseCaseInfo) String() string {
 	return fmt.Sprintf("%s - %s", u.Action, u.Name)
 }
 
-type IUsecase[Input any, Output any] interface {
-	Handle(context.Context, Input) (Output, error)
+type IUsecase interface {
 	Init(gateways.IDatastore)
 	Datastore() gateways.IDatastore
 	Info() UseCaseInfo
 }
 
-func New[Input any, Output any](usecase IUsecase[Input, Output], datastore gateways.IDatastore) IUsecase[Input, Output] {
+func New[Usecase IUsecase](usecase Usecase, datastore gateways.IDatastore) Usecase {
 	usecase.Init(datastore)
 	return usecase
 }

@@ -6,6 +6,7 @@ import (
 
 	charmLog "github.com/charmbracelet/log"
 	"github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	"github.com/japhy-tech/backend-test/database_actions"
 	"github.com/japhy-tech/backend-test/internal/domain/breeds"
 )
