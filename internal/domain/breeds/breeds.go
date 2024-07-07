@@ -3,16 +3,11 @@ package breeds
 import "github.com/japhy-tech/backend-test/internal/domain/values"
 
 type Breed struct {
-	id                  int
 	name                values.BreedName
 	species             values.Species
 	petSize             values.PetSize
 	averageFemaleWeight int
 	averageMaleWeight   int
-}
-
-func (b Breed) ID() int {
-	return b.id
 }
 
 func (b Breed) Name() values.BreedName {
