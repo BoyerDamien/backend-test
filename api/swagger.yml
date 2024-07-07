@@ -83,6 +83,8 @@ paths:
       summary: Update or create one breed
       description: If the breed exists it update this breed with the entire body of the request. Othewise it creates it.
       operationId: CreateOrUpdateBreedByName
+      parameters:
+      - $ref: "#/components/parameters/BreedName"
       requestBody:
         $ref: "#/components/requestBodies/Breed"
       responses:
