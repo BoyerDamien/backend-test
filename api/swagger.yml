@@ -19,6 +19,7 @@ paths:
         - $ref: "#/components/parameters/Species"
         - $ref: "#/components/parameters/AverageFemaleAdultWeight"
         - $ref: "#/components/parameters/AverageMaleAdultWeight"
+        - $ref: "#/components/parameters/PetSize"
       responses:
         '200':
           $ref: "#/components/responses/BreedsList"
@@ -118,6 +119,12 @@ components:
           schema:
             $ref: "#/components/schemas/Breeds"
   parameters:
+    PetSize:
+      in: query
+      required: false
+      name: "pet_size"
+      schema:
+        $ref: "#/components/schemas/PetSize"
     AverageMaleAdultWeight:
       in: query
       required: false
@@ -197,6 +204,13 @@ components:
       enum:
         - dog
         - cat
+    PetSize:
+      type: string
+      enum:
+        - small
+        - medium
+        - tall
+      description: size of the pet
     Error:
       type: object
       additionalProperties: false
@@ -216,12 +230,7 @@ components:
         - name
       properties:
         pet_size:
-          type: string
-          enum:
-            - small
-            - medium
-            - tall
-          description: size of the pet
+          $ref: "#/components/schemas/PetSize"
         species:
           $ref: "#/components/schemas/Species"
         name:

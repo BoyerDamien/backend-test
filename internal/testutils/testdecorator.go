@@ -16,7 +16,7 @@ const (
 	MysqlDSN = "root:root@(localhost:53306)/core?parseTime=true"
 )
 
-func TestDecorator(t *testing.T, test func(context.Context, gateways.IDatastore, *td.T)) {
+func TestDecorator(t *testing.T, test func(context.Context, gateways.IDatastore, *td.T, *charmLog.Logger)) {
 	var (
 		logger = charmLog.NewWithOptions(os.Stderr, charmLog.Options{
 			Formatter:       charmLog.TextFormatter,
@@ -35,5 +35,5 @@ func TestDecorator(t *testing.T, test func(context.Context, gateways.IDatastore,
 		require.CmpNoError(datastore.Close())
 	}()
 
-	test(ctx, datastore, require)
+	test(ctx, datastore, require, logger)
 }

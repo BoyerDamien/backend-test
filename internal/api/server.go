@@ -36,6 +36,7 @@ func (s Server) ListBreeds(w http.ResponseWriter, r *http.Request, params ListBr
 			Species:             (*string)(params.Species),
 			AverageFemaleWeight: params.AverageFemaleAdultWeight,
 			AverageMaleWeight:   params.AverageMaleAdultWeight,
+			PetSize:             (*string)(params.PetSize),
 		})
 		if err != nil {
 			return nil, err
@@ -185,7 +186,7 @@ func BreedToJson(domain *breeds.Breed) Breed {
 	return Breeds{
 		Name:                     domain.Name().String(),
 		Species:                  Species(domain.Species().String()),
-		PetSize:                  BreedsPetSize(domain.PetSize().String()),
+		PetSize:                  PetSize(domain.PetSize().String()),
 		AverageFemaleAdultWeight: common.ToPointer(domain.AverageFemaleWeight()),
 		AverageMaleAdultWeight:   common.ToPointer(domain.AverageMaleWeight()),
 	}

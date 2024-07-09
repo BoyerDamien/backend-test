@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	charmLog "github.com/charmbracelet/log"
 	"github.com/japhy-tech/backend-test/internal/common"
 	"github.com/japhy-tech/backend-test/internal/domain/breeds"
 	"github.com/japhy-tech/backend-test/internal/domain/values"
@@ -16,7 +17,7 @@ import (
 )
 
 func TestUpdateOne_Handle(t *testing.T) {
-	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T) {
+	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T, _ *charmLog.Logger) {
 		var (
 			createHandler = usecases.New(&breedUsecases.CreateOne{}, datastore)
 			updateHandler = usecases.New(&breedUsecases.UpdateOne{}, datastore)

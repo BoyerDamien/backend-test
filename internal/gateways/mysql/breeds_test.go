@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	charmLog "github.com/charmbracelet/log"
 	"github.com/japhy-tech/backend-test/internal/common"
 	"github.com/japhy-tech/backend-test/internal/domain/breeds"
 	"github.com/japhy-tech/backend-test/internal/domain/values"
@@ -14,7 +15,7 @@ import (
 )
 
 func TestBreedStorage_CreateOne(t *testing.T) {
-	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T) {
+	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T, _ *charmLog.Logger) {
 		type Args struct {
 			name                     values.BreedName
 			species                  values.Species
@@ -99,7 +100,7 @@ func TestBreedStorage_CreateOne(t *testing.T) {
 }
 
 func TestBreedStorage_GetOneByName(t *testing.T) {
-	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T) {
+	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T, _ *charmLog.Logger) {
 		var (
 			tests = []struct {
 				name      string
@@ -148,7 +149,7 @@ func TestBreedStorage_GetOneByName(t *testing.T) {
 }
 
 func TestBreedStorage_DeleteOneByName(t *testing.T) {
-	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T) {
+	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T, _ *charmLog.Logger) {
 		var (
 			tests = []struct {
 				name      string
@@ -192,7 +193,7 @@ func TestBreedStorage_DeleteOneByName(t *testing.T) {
 }
 
 func TestBreedStorage_UpdateOne(t *testing.T) {
-	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T) {
+	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T, _ *charmLog.Logger) {
 		b, err := breeds.NewFactory(breeds.FactoryOpts{
 			Name:    "test",
 			Species: values.Cat.String(),
@@ -223,7 +224,7 @@ func TestBreedStorage_UpdateOne(t *testing.T) {
 }
 
 func TestBreedStorage_List(t *testing.T) {
-	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T) {
+	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T, _ *charmLog.Logger) {
 		var (
 			breedArgs = []breeds.FactoryOpts{
 				{
