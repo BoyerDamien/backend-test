@@ -59,7 +59,7 @@ type IUsecase[Input any, Output any] interface {
 	Handle(context.Context, Input) (Output, error)
 	Init(gateways.IDatastore)
 	Datastore() gateways.IDatastore
-	Info()
+	Info() UseCaseInfo
 }
 
 func New[Input any, Output any](usecase IUsecase[Input, Output], datastore gateways.IDatastore) IUsecase[Input, Output] {

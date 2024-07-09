@@ -14,8 +14,8 @@ type ListOpts struct {
 
 type Repository interface {
 	GetOneByName(context.Context, values.BreedName) (*Breed, error)
-	Save(context.Context, *Breed) (*Breed, error)
-	UpdateOrCreateOneByName(context.Context, values.BreedName, *Breed) (*Breed, error)
+	CreateOne(context.Context, *Breed) (*Breed, error)
+	UpdateOne(context.Context, *Breed) (*Breed, error)
 	DeleteOneByName(context.Context, values.BreedName) error
 	List(context.Context, ListOpts) ([]*Breed, error)
 }
