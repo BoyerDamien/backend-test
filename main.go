@@ -1,3 +1,5 @@
+//go:generate go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen --config=config.yaml ./api/swagger.yml
+
 package main
 
 import (
@@ -11,7 +13,7 @@ import (
 	charmLog "github.com/charmbracelet/log"
 	"github.com/gorilla/mux"
 	"github.com/japhy-tech/backend-test/database_actions"
-	"github.com/japhy-tech/backend-test/internal"
+	"github.com/japhy-tech/backend-test/internal/api"
 )
 
 const (
@@ -57,19 +59,22 @@ func main() {
 
 	logger.Info("Database connected")
 
-	app := internal.NewApp(logger)
+	// app := internal.NewApp(logger)
+	// app.RegisterRoutes(r.PathPrefix("/v1").Subrouter())
 
 	r := mux.NewRouter()
-	app.RegisterRoutes(r.PathPrefix("/v1").Subrouter())
-
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}).Methods(http.MethodGet)
 
-	err = http.ListenAndServe(
-		net.JoinHostPort("", ApiPort),
-		r,
-	)
+	h := api.HandlerFromMuxWithBaseURL(api.New(logger), r, "/v1")
+
+	server := &http.Server{
+		Handler: h,
+		Addr:    net.JoinHostPort("", ApiPort),
+	}
+
+	err = server.ListenAndServe()
 
 	// =============================== Starting Msg ===============================
 	logger.Info(fmt.Sprintf("Service started and listen on port %s", ApiPort))
