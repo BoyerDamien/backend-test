@@ -35,3 +35,11 @@ Have fun and good luck!
 5. Once the application is up and running, you can access the REST API at http://localhost:50010. Use tools like Postman or curl to interact with the API.
 6. `curl -v http://localhost:50010/health` to ensure your application is running.
 7. send us the link to your repository with the api.
+
+## Test
+1. Run `docker compose up -d`
+2. Run `go test -p=1 ./...`
+
+## Documentation
+1. Run `docker compose up -d`
+2. Go to [swagger-ui](http://localhost:50010/index.html)
