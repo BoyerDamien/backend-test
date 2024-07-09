@@ -77,7 +77,7 @@ func (s Server) CreateOneBreed(w http.ResponseWriter, r *http.Request) {
 // Delete a given breed by its name
 // (DELETE /breeds/name/{breed_name})
 func (s Server) DeleteBreedByName(w http.ResponseWriter, r *http.Request, breedName BreedName) {
-	err := usecases.New(&breedsUsecase.DeleteOneByName{}, s.datastore).Handle(r.Context(), breedName)
+	err := usecases.NewSimple(&breedsUsecase.DeleteOneByName{}, s.datastore).Handle(r.Context(), breedName)
 	if err != nil {
 		HandleErrorResponse(w, err)
 		return

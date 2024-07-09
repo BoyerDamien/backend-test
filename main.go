@@ -3,16 +3,15 @@
 package main
 
 import (
-	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"time"
 
 	charmLog "github.com/charmbracelet/log"
 	"github.com/gorilla/mux"
 	"github.com/japhy-tech/backend-test/internal/api"
 	"github.com/japhy-tech/backend-test/internal/gateways/mysql"
+	"github.com/japhy-tech/backend-test/internal/logger"
 )
 
 const (
@@ -20,25 +19,34 @@ const (
 	ApiPort  = "5000"
 )
 
-func main() {
-	logger := charmLog.NewWithOptions(os.Stderr, charmLog.Options{
-		Formatter:       charmLog.TextFormatter,
-		ReportCaller:    true,
-		ReportTimestamp: true,
-		TimeFormat:      time.Kitchen,
-		Prefix:          "🧑‍💻 backend-test",
-		Level:           charmLog.DebugLevel,
-	})
+func loggingMiddleware(logger *charmLog.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			next.ServeHTTP(w, r)
+			logger.Infof(
+				"%s | %s | %s | %s | %s",
+				r.Method,
+				r.URL.Path,
+				time.Now().Format(time.RFC822),
+				r.RemoteAddr,
+				r.UserAgent(),
+			)
+		})
+	}
+}
 
-	datastore := mysql.New(MysqlDSN, logger)
+func main() {
+
+	datastore := mysql.New(MysqlDSN, logger.Logger)
 	defer datastore.Close()
 
 	r := mux.NewRouter()
+	r.Use(loggingMiddleware(logger.Logger))
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}).Methods(http.MethodGet)
 
-	h := api.HandlerFromMuxWithBaseURL(api.New(logger, datastore), r, "/v1")
+	h := api.HandlerFromMuxWithBaseURL(api.New(logger.Logger, datastore), r, "/v1")
 
 	server := &http.Server{
 		Handler: h,
@@ -46,9 +54,9 @@ func main() {
 	}
 
 	if err := server.ListenAndServe(); err != nil {
-		logger.Fatal(err.Error())
+		logger.Logger.Fatal(err.Error())
 	}
 
 	// =============================== Starting Msg ===============================
-	logger.Info(fmt.Sprintf("Service started and listen on port %s", ApiPort))
+	logger.Logger.Infof("Service started and listen on port %s", ApiPort)
 }
