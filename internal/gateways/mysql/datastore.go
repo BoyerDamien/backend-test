@@ -1,7 +1,9 @@
 package mysql
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"os"
 
 	charmLog "github.com/charmbracelet/log"
@@ -14,11 +16,20 @@ import (
 type Datastore struct {
 	breeds *BreedStorage
 	logger *charmLog.Logger
+	goquDb *goqu.Database
 	db     *sql.DB
 }
 
 func (d Datastore) Close() error {
 	return d.db.Close()
+}
+
+func (d Datastore) Reset(ctx context.Context) error {
+	_, err := d.goquDb.Truncate(goqu.T("breeds")).Executor().ExecContext(ctx)
+	if err != nil {
+		return fmt.Errorf("fail to truncate table %w", err)
+	}
+	return nil
 }
 
 func (d Datastore) Breeds() breeds.Repository {
@@ -52,9 +63,11 @@ func New(dsn string, logger *charmLog.Logger) *Datastore {
 	}
 
 	logger.Info("Database connected")
+	goquDB := goqu.New("mysql", db)
 
 	return &Datastore{
-		breeds: NewBreedStorage(goqu.New("mysql", db)),
+		goquDb: goquDB,
+		breeds: NewBreedStorage(goquDB),
 		db:     db,
 		logger: logger,
 	}

@@ -11,11 +11,11 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
-// Defines values for BreedsPetSize.
+// Defines values for PetSize.
 const (
-	Medium BreedsPetSize = "medium"
-	Small  BreedsPetSize = "small"
-	Tall   BreedsPetSize = "tall"
+	Medium PetSize = "medium"
+	Small  PetSize = "small"
+	Tall   PetSize = "tall"
 )
 
 // Defines values for Species.
@@ -36,17 +36,17 @@ type Breeds struct {
 	Name string `json:"name"`
 
 	// PetSize size of the pet
-	PetSize BreedsPetSize `json:"pet_size"`
-	Species Species       `json:"species"`
+	PetSize PetSize `json:"pet_size"`
+	Species Species `json:"species"`
 }
-
-// BreedsPetSize size of the pet
-type BreedsPetSize string
 
 // Error defines model for Error.
 type Error struct {
 	Message string `json:"message"`
 }
+
+// PetSize size of the pet
+type PetSize string
 
 // Species defines model for Species.
 type Species string
@@ -86,6 +86,7 @@ type ListBreedsParams struct {
 	Species                  *Species                  `form:"species,omitempty" json:"species,omitempty"`
 	AverageFemaleAdultWeight *AverageFemaleAdultWeight `form:"average_female_adult_weight,omitempty" json:"average_female_adult_weight,omitempty"`
 	AverageMaleAdultWeight   *AverageMaleAdultWeight   `form:"average_male_adult_weight,omitempty" json:"average_male_adult_weight,omitempty"`
+	PetSize                  *PetSize                  `form:"pet_size,omitempty" json:"pet_size,omitempty"`
 }
 
 // CreateOneBreedJSONRequestBody defines body for CreateOneBreed for application/json ContentType.
@@ -152,6 +153,14 @@ func (siw *ServerInterfaceWrapper) ListBreeds(w http.ResponseWriter, r *http.Req
 	err = runtime.BindQueryParameter("form", true, false, "average_male_adult_weight", r.URL.Query(), &params.AverageMaleAdultWeight)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "average_male_adult_weight", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "pet_size" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "pet_size", r.URL.Query(), &params.PetSize)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pet_size", Err: err})
 		return
 	}
 
