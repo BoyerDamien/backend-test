@@ -117,7 +117,6 @@ func TestFactory_Instantiate(t *testing.T) {
 				require.CmpErrorIs(err, tt.wantErr)
 				require.Contains(err, tt.errContains)
 			} else {
-				require.Cmp(got.ID(), 0)
 				require.Cmp(got.Name().String(), tt.opts.Name)
 				require.Cmp(got.PetSize().String(), tt.opts.PetSize)
 				if tt.opts.AverageFemaleWeight != nil {

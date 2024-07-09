@@ -13,6 +13,7 @@ type List struct {
 }
 
 type ListOpts struct {
+	PetSize             *string
 	Species             *string
 	AverageFemaleWeight *int
 	AverageMaleWeight   *int
@@ -33,6 +34,13 @@ func (g List) Handle(ctx context.Context, params ListOpts) ([]*breeds.Breed, err
 			return nil, err
 		} else {
 			opts.Species = &val
+		}
+	}
+	if params.PetSize != nil {
+		if val, err := values.PetSizeFromString(*params.PetSize); err != nil {
+			return nil, err
+		} else {
+			opts.PetSize = &val
 		}
 	}
 	opts.AverageMaleWeight = params.AverageMaleWeight
