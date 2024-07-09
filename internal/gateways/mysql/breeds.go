@@ -141,10 +141,31 @@ func (b BreedStorage) List(ctx context.Context, params breeds.ListOpts) ([]*bree
 	if params.PetSize != nil {
 		query = query.Where(goqu.C("pet_size").Eq(params.PetSize.String()))
 	}
+	if len(params.NameIn) > 0 {
+		query = query.Where(goqu.C("name").In(params.NameIn))
+	}
 	if err := query.ScanStructsContext(ctx, &res); err != nil {
 		return nil, domainerror.WrapError(domainerror.ErrInternalError, err)
 	}
 	return common.EMap(res, func(val BreedModel) (*breeds.Breed, error) {
 		return val.ToDomain()
 	})
+}
+
+func (b BreedStorage) CreateSeveral(ctx context.Context, arr []*breeds.Breed) ([]*breeds.Breed, error) {
+	toInsert := common.Map(arr, func(input *breeds.Breed) interface{} {
+		return goqu.Record{
+			"name":                        input.Name().String(),
+			"species":                     input.Species().String(),
+			"pet_size":                    input.PetSize().String(),
+			"average_male_adult_weight":   input.AverageMaleWeight(),
+			"average_female_adult_weight": input.AverageFemaleWeight(),
+		}
+	})
+
+	insert := b.db.Insert(goqu.T("breeds")).Rows(toInsert...).Executor()
+	if _, err := insert.ExecContext(ctx); err != nil {
+		return nil, domainerror.WrapError(domainerror.ErrInternalError, err)
+	}
+	return arr, nil
 }

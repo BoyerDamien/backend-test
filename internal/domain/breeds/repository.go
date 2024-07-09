@@ -11,6 +11,7 @@ type ListOpts struct {
 	AverageFemaleWeight *int
 	AverageMaleWeight   *int
 	PetSize             *values.PetSize
+	NameIn              []string
 }
 
 type Repository interface {
@@ -19,4 +20,5 @@ type Repository interface {
 	UpdateOne(context.Context, *Breed) (*Breed, error)
 	DeleteOneByName(context.Context, values.BreedName) error
 	List(context.Context, ListOpts) ([]*Breed, error)
+	CreateSeveral(context.Context, []*Breed) ([]*Breed, error)
 }
