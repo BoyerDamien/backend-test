@@ -34,8 +34,8 @@ func (c CreateOne) Handle(ctx context.Context, params breeds.FactoryOpts) (*bree
 	if err == nil {
 		return nil, domainerror.WrapError(domainerror.ErrResourceAlreadyExists, fmt.Errorf("breed %s already exists", b.Name()))
 	}
-	if errors.Is(err, domainerror.ErrResourceNotFound) {
-		return breedRepo.CreateOne(ctx, b)
+	if !errors.Is(err, domainerror.ErrResourceNotFound) {
+		return nil, err
 	}
-	return nil, err
+	return breedRepo.CreateOne(ctx, b)
 }
