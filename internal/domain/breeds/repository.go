@@ -10,6 +10,7 @@ type ListOpts struct {
 	Species             *values.Species
 	AverageFemaleWeight *int
 	AverageMaleWeight   *int
+	PetSize             *values.PetSize
 }
 
 type Repository interface {

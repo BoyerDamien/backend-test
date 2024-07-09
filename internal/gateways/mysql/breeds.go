@@ -138,6 +138,9 @@ func (b BreedStorage) List(ctx context.Context, params breeds.ListOpts) ([]*bree
 	if params.AverageMaleWeight != nil {
 		query = query.Where(goqu.C("average_male_adult_weight").Eq(*params.AverageMaleWeight))
 	}
+	if params.PetSize != nil {
+		query = query.Where(goqu.C("pet_size").Eq(params.PetSize.String()))
+	}
 	if err := query.ScanStructsContext(ctx, &res); err != nil {
 		return nil, domainerror.WrapError(domainerror.ErrInternalError, err)
 	}
