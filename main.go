@@ -50,7 +50,8 @@ func main() {
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}).Methods(http.MethodGet)
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/")))
+	r.PathPrefix("/v1/docs/").Handler(http.StripPrefix("/v1/docs/", http.FileServer(http.Dir("./api"))))
+
 	h := api.HandlerFromMuxWithBaseURL(api.New(logger.Logger, datastore), r, "/v1")
 
 	server := &http.Server{

@@ -42,4 +42,4 @@ Have fun and good luck!
 
 ## Documentation
 1. Run `docker compose up -d`
-2. Go to [swagger-ui](http://localhost:50010/index.html)
+2. Go to [swagger-ui](http://localhost:50010/v1/docs/index.html)
