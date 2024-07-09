@@ -20,7 +20,7 @@ func TestDeleteOneByName_Handle(t *testing.T) {
 	testutils.TestDecorator(t, func(ctx context.Context, datastore gateways.IDatastore, require *td.T, _ *charmLog.Logger) {
 		var (
 			createHandler = usecases.New(&breedUsecases.CreateOne{}, datastore)
-			deleteHandler = usecases.New(&breedUsecases.DeleteOneByName{}, datastore)
+			deleteHandler = usecases.NewSimple(&breedUsecases.DeleteOneByName{}, datastore)
 			getHandler    = usecases.New(&breedUsecases.GetOneByName{}, datastore)
 
 			tests = []struct {
