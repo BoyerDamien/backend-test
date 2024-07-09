@@ -7,9 +7,9 @@ import (
 )
 
 type ListOpts struct {
-	Species             values.Species
-	AverageFemaleWeight int
-	AverageMaleWeight   int
+	Species             *values.Species
+	AverageFemaleWeight *int
+	AverageMaleWeight   *int
 }
 
 type Repository interface {

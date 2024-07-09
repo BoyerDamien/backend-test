@@ -3,7 +3,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"net"
 	"net/http"
@@ -12,8 +11,8 @@ import (
 
 	charmLog "github.com/charmbracelet/log"
 	"github.com/gorilla/mux"
-	"github.com/japhy-tech/backend-test/database_actions"
 	"github.com/japhy-tech/backend-test/internal/api"
+	"github.com/japhy-tech/backend-test/internal/gateways/mysql"
 )
 
 const (
@@ -31,50 +30,24 @@ func main() {
 		Level:           charmLog.DebugLevel,
 	})
 
-	err := database_actions.InitMigrator(MysqlDSN)
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
-
-	msg, err := database_actions.RunMigrate("up", 0)
-	if err != nil {
-		logger.Error(err.Error())
-	} else {
-		logger.Info(msg)
-	}
-
-	db, err := sql.Open("mysql", MysqlDSN)
-	if err != nil {
-		logger.Fatal(err.Error())
-		os.Exit(1)
-	}
-	defer db.Close()
-	db.SetMaxIdleConns(0)
-
-	err = db.Ping()
-	if err != nil {
-		logger.Fatal(err.Error())
-		os.Exit(1)
-	}
-
-	logger.Info("Database connected")
-
-	// app := internal.NewApp(logger)
-	// app.RegisterRoutes(r.PathPrefix("/v1").Subrouter())
+	datastore := mysql.New(MysqlDSN, logger)
+	defer datastore.Close()
 
 	r := mux.NewRouter()
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}).Methods(http.MethodGet)
 
-	h := api.HandlerFromMuxWithBaseURL(api.New(logger), r, "/v1")
+	h := api.HandlerFromMuxWithBaseURL(api.New(logger, datastore), r, "/v1")
 
 	server := &http.Server{
 		Handler: h,
 		Addr:    net.JoinHostPort("", ApiPort),
 	}
 
-	err = server.ListenAndServe()
+	if err := server.ListenAndServe(); err != nil {
+		logger.Fatal(err.Error())
+	}
 
 	// =============================== Starting Msg ===============================
 	logger.Info(fmt.Sprintf("Service started and listen on port %s", ApiPort))

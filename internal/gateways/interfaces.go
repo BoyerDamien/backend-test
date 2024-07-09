@@ -6,4 +6,5 @@ import "github.com/japhy-tech/backend-test/internal/domain/breeds"
 // More repositories could be added
 type IDatastore interface {
 	Breeds() breeds.Repository
+	Close() error
 }
