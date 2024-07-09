@@ -30,6 +30,42 @@ const (
 	ApiPort  = "5000"
 )
 
+func main() {
+	// Init datastore
+	datastore := mysql.New(MysqlDSN, logger.Logger)
+	defer datastore.Close()
+
+	/// Sync data from csv with the datastore
+	breeds, err := breedsFromCSV("./breeds.csv")
+	if err != nil {
+		logger.Logger.Fatalf("cannot convert csv data: %s", err)
+	}
+	if err := syncDatastore(breeds, datastore); err != nil {
+		logger.Logger.Fatalf("cannot insert csv data in datastore: %s", err)
+	}
+
+	// Init Api handler
+	r := mux.NewRouter()
+	r.Use(loggingMiddleware(logger.Logger))
+	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodGet)
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./api/")))
+	h := api.HandlerFromMuxWithBaseURL(api.New(logger.Logger, datastore), r, "/v1")
+
+	server := &http.Server{
+		Handler: h,
+		Addr:    net.JoinHostPort("", ApiPort),
+	}
+
+	if err := server.ListenAndServe(); err != nil {
+		logger.Logger.Fatal(err.Error())
+	}
+
+	// =============================== Starting Msg ===============================
+	logger.Logger.Infof("Service started and listen on port %s", ApiPort)
+}
+
 func loggingMiddleware(logger *charmLog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -132,40 +168,4 @@ func syncDatastore(arr []*breeds.Breed, datastore gateways.IDatastore) error {
 	}
 	logger.Logger.Info("datastore synchronized")
 	return nil
-}
-
-func main() {
-	// Init datastore
-	datastore := mysql.New(MysqlDSN, logger.Logger)
-	defer datastore.Close()
-
-	/// Sync data from csv with the datastore
-	breeds, err := breedsFromCSV("./breeds.csv")
-	if err != nil {
-		logger.Logger.Fatalf("cannot convert csv data: %s", err)
-	}
-	if err := syncDatastore(breeds, datastore); err != nil {
-		logger.Logger.Fatalf("cannot insert csv data in datastore: %s", err)
-	}
-
-	// Init Api handler
-	r := mux.NewRouter()
-	r.Use(loggingMiddleware(logger.Logger))
-	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}).Methods(http.MethodGet)
-
-	h := api.HandlerFromMuxWithBaseURL(api.New(logger.Logger, datastore), r, "/v1")
-
-	server := &http.Server{
-		Handler: h,
-		Addr:    net.JoinHostPort("", ApiPort),
-	}
-
-	if err := server.ListenAndServe(); err != nil {
-		logger.Logger.Fatal(err.Error())
-	}
-
-	// =============================== Starting Msg ===============================
-	logger.Logger.Infof("Service started and listen on port %s", ApiPort)
 }
