@@ -83,7 +83,7 @@ func (b Default[Input, Output]) Handle(ctx context.Context, input Input) (Output
 
 	r, err := b.content.Handle(ctx, input)
 	if err != nil {
-		l.Errorf("Usecase %s [FAILED]", b.content.Info())
+		l.Errorf("Usecase %s [FAILED]: %s", b.content.Info(), err)
 	} else {
 		l.Infof("Usecase %s [SUCCEED]", b.content.Info())
 	}
@@ -112,7 +112,7 @@ func (b SimpleDefault[Input]) Handle(ctx context.Context, input Input) error {
 
 	err := b.content.Handle(ctx, input)
 	if err != nil {
-		l.Errorf("Usecase %s [FAILED]", b.content.Info())
+		l.Errorf("Usecase %s [FAILED]: %s", b.content.Info(), err)
 	} else {
 		l.Infof("Usecase %s [SUCCEED]", b.content.Info())
 	}
